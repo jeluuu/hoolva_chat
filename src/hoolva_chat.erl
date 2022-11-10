@@ -1,6 +1,6 @@
 -module(hoolva_chat).
 
--behaviour(gen_server).
+% -behaviour(gen_server).
 
 % -include("emqx_retainer.hrl").
 % -include_lib("emqx/include/emqx.hrl").
