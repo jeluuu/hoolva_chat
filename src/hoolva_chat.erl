@@ -21,8 +21,8 @@
 
 %% Client Lifecircle Hooks
 -export([
-    %  on_client_connect/3
-         on_client_connack/4
+     on_client_connect/3
+        , on_client_connack/4
         , on_client_connected/3
         , on_client_disconnected/4
         , on_client_authenticate/3
@@ -52,6 +52,7 @@
 
 
 load(Env) ->
+    emqx:hook('client.connect',      {?MODULE, on_client_connect, [Env]}),
     emqx:hook('client.connack',      {?MODULE, on_client_connack, [Env]}),
     emqx:hook('client.connected',    {?MODULE, on_client_connected, [Env]}),
     emqx:hook('client.disconnected', {?MODULE, on_client_disconnected, [Env]}),
@@ -64,6 +65,7 @@ load(Env) ->
     emqx:hook('message.acked',       {?MODULE, on_message_acked, [Env]}).
 
 unload() -> 
+    emqx:unhook('client.connect',      {?MODULE, on_client_connect}),
     emqx:unhook('client.connack',      {?MODULE, on_client_connack}),
     emqx:unhook('client.connected',    {?MODULE, on_client_connected}),
     emqx:unhook('client.disconnected', {?MODULE, on_client_disconnected}),
@@ -74,6 +76,12 @@ unload() ->
     emqx:unhook('message.publish',     {?MODULE, on_message_publish}),
     emqx:unhook('message.delivered',   {?MODULE, on_message_delivered}),
     emqx:unhook('message.acked',       {?MODULE, on_message_acked}).
+
+
+on_client_connect(ConnInfo = #{clientid := ClientId}, Props, _Env) ->
+    io:format("Client(~s) connect, ConnInfo: ~p, Props: ~p~n",
+              [ClientId, ConnInfo, Props]),
+    {ok, Props}.
 
 on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
     io:format("Client(~s) connack, ConnInfo: ~p, Rc: ~p, Props: ~p~n",
