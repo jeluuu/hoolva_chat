@@ -286,7 +286,12 @@ on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
     io:format("Message delivered to client : ~p~n message : ~p~n",[ClientId, Message]),
     {ok, Message}.
 
-on_message_acked(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
+
+on_message_acked(_ClientInfo, #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
+    io:format("~n------------ checking ACK ---------~n"),
+    ok;
+on_message_acked(#{clientid := ClientId}, Message, _Env) ->
+% on_message_acked(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
     io:format("~n ======= Message acked by client(~s):~n~p~n",
               [ClientId, Message]).
 
