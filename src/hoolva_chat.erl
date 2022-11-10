@@ -27,6 +27,7 @@
         , on_client_disconnected/4
         , on_client_authenticate/3
         , on_client_authorize/5
+        , on_client_check_acl/5
         % , on_client_subscribe/4
         % , on_client_unsubscribe/4
         ]).
@@ -96,6 +97,11 @@ on_client_authorize(ClientInfo = #{clientid := ClientId}, PubSub, Topic, Result,
   io:format("Client(~s) authorize, ClientInfo:~n~p~n, ~p to topic(~s) Result:~p,~nEnv:~p~n",
     [ClientId, ClientInfo, PubSub, Topic, Result, Env]),
   {ok, Result}.
+
+on_client_check_acl(_ClientInfo = #{clientid := ClientId}, Topic, PubSub, Result, _Env) ->
+    io:format("Client(~s) check_acl, PubSub:~p, Topic:~p, Result:~p~n",
+              [ClientId, PubSub, Topic, Result]),
+    {ok, Result}.
 
 
 % on_session_subscribed(#{clientid := ClientId}, Topic, SubOpts, _Env) ->
