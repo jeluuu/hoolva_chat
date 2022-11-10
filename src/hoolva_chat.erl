@@ -19,6 +19,18 @@
         , unload/0
         ]).
 
+%% Client Lifecircle Hooks
+-export([
+    %  on_client_connect/3
+         on_client_connack/4
+        , on_client_connected/3
+        , on_client_disconnected/4
+        , on_client_authenticate/3
+        , on_client_authorize/5
+        % , on_client_subscribe/4
+        % , on_client_unsubscribe/4
+        ]).
+
 -export([ 
     % on_session_subscribed/4
          on_message_delivered/3
@@ -39,17 +51,51 @@
 
 
 load(Env) ->
+    emqx:hook('client.connack',      {?MODULE, on_client_connack, [Env]}),
+    emqx:hook('client.connected',    {?MODULE, on_client_connected, [Env]}),
+    emqx:hook('client.disconnected', {?MODULE, on_client_disconnected, [Env]}),
+    emqx:hook('client.authenticate', {?MODULE, on_client_authenticate, [Env]}),
+    emqx:hook('client.authorize',    {?MODULE, on_client_authorize, [Env]}),
+    emqx:hook('client.check_acl',    {?MODULE, on_client_check_acl, [Env]}),
     % emqx:hook('session.subscribed',  {?MODULE, on_session_subscribed, [Env]}),
     emqx:hook('message.publish',     {?MODULE, on_message_publish, [Env]}),
     emqx:hook('message.delivered',   {?MODULE, on_message_delivered, [Env]}),
     emqx:hook('message.acked',       {?MODULE, on_message_acked, [Env]}).
 
 unload() -> 
+    emqx:unhook('client.connack',      {?MODULE, on_client_connack}),
+    emqx:unhook('client.connected',    {?MODULE, on_client_connected}),
+    emqx:unhook('client.disconnected', {?MODULE, on_client_disconnected}),
+    emqx:unhook('client.authenticate', {?MODULE, on_client_authenticate}),
+    emqx:unhook('client.authorize',    {?MODULE, on_client_authorize}),
+    emqx:unhook('client.check_acl',    {?MODULE, on_client_check_acl}),
     % emqx:unhook('session.subscribed',  {?MODULE, on_session_subscribed}),
     emqx:unhook('message.publish',     {?MODULE, on_message_publish}),
     emqx:unhook('message.delivered',   {?MODULE, on_message_delivered}),
     emqx:unhook('message.acked',       {?MODULE, on_message_acked}).
 
+on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
+    io:format("Client(~s) connack, ConnInfo: ~p, Rc: ~p, Props: ~p~n",
+              [ClientId, ConnInfo, Rc, Props]),
+    {ok, Props}.
+
+on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
+    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+              [ClientId, ClientInfo, ConnInfo]).
+
+on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
+  io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+              [ClientId, ReasonCode, ClientInfo, ConnInfo]).
+
+on_client_authenticate(ClientInfo = #{clientid := ClientId}, Result, Env) ->
+  io:format("Client(~s) authenticate, ClientInfo:~n~p~n, Result:~p,~nEnv:~p~n",
+    [ClientId, ClientInfo, Result, Env]),
+  {ok, Result}.
+
+on_client_authorize(ClientInfo = #{clientid := ClientId}, PubSub, Topic, Result, Env) ->
+  io:format("Client(~s) authorize, ClientInfo:~n~p~n, ~p to topic(~s) Result:~p,~nEnv:~p~n",
+    [ClientId, ClientInfo, PubSub, Topic, Result, Env]),
+  {ok, Result}.
 
 
 % on_session_subscribed(#{clientid := ClientId}, Topic, SubOpts, _Env) ->
@@ -78,20 +124,11 @@ unload() ->
 %     end.
 
 
-% on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
-%     io:format("Message delivered to client(~s): ~s~n",
-%               [ClientId, emqx_message:format(Message)]),
+% on_message_acked(#{client_id := ClientId}, Message, _Env) ->
+%     % io:format("Session(~s) acked message: ~s~n", [ClientId, emqx_message:format(Message)]),
+%     io:format("~n----------client_id : ~p ~nmessage : ~p~n",[ClientId,Message]),
+%     % voifinity_message_action:on_delivered(ClientId,Message),
 %     {ok, Message}.
-
-on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
-    io:format("Message delivered to client : ~p~n message : ~p~n",[ClientId, Message]),
-    {ok, Message}.
-
-on_message_acked(#{client_id := ClientId}, Message, _Env) ->
-    % io:format("Session(~s) acked message: ~s~n", [ClientId, emqx_message:format(Message)]),
-    io:format("~n----------client_id : ~p ~nmessage : ~p~n",[ClientId,Message]),
-    % voifinity_message_action:on_delivered(ClientId,Message),
-    {ok, Message}.
 
 on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     {ok, Message};
@@ -121,6 +158,21 @@ on_message_publish(Message, _Env) ->
     %         % hoolva_chat_actions:send(Uuid),
             {ok, Message}.
         % end.
+        % 
+        % 
+
+% on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
+%     io:format("Message delivered to client(~s): ~s~n",
+%               [ClientId, emqx_message:format(Message)]),
+%     {ok, Message}.
+
+on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
+    io:format("Message delivered to client : ~p~n message : ~p~n",[ClientId, Message]),
+    {ok, Message}.
+
+on_message_acked(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
+    io:format("Message acked by client(~s):~n~p~n",
+              [ClientId, emqx_message:to_map(Message)]).
     
 % %----- on session subscribed -- subs ---
 
