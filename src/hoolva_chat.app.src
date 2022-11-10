@@ -1,0 +1,14 @@
+{application, hoolva_chat,
+ [{description, "EMQ X Plugin Template"},
+  {vsn, "git"},
+  {modules, []},
+  {registered, [hoolva_chat_sup]},
+  {applications, [kernel,stdlib,jsx,tivan]},
+  {mod, {hoolva_chat_app,[]}},
+  {env, []},
+  {licenses, ["Apache-2.0"]},
+  {maintainers, ["EMQ X Team <contact@emqx.io>"]},
+  {links, [{"Homepage", "https://emqx.io/"},
+           {"Github", "https://github.com/emqx/emqx-plugin-template"}
+          ]}
+ ]}.

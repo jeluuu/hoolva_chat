@@ -8,10 +8,16 @@ erl_crash.dump
 # rebar 2.x
 .rebar
 rel/example_project
+.erlang.mk/
+data/
 ebin/*.beam
 deps
+.DS_Store
 
 # rebar 3
 .rebar3
 _build/
+rebar.lock
+test/ct.cover.spec
 _checkouts/
+/.idea/
