@@ -43,8 +43,8 @@ init([]) ->
                                 , from_id => #{type => binary}
                                 , message => #{type => binary}
 
-                                , flags => #{type => maps}
-                                , headers => #{type => maps}
+                                , flags => #{type => map}
+                                , headers => #{type => map}
 
                                 , time => #{type => integer}
                                 , status => #{type => binary
