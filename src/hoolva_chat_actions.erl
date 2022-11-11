@@ -62,14 +62,14 @@ init([]) ->
 store(Message) ->
     io:format("~n entered hoolva_chat store function "),       %published by emqx payload
     
-    ChatOutput = #{topic => Message#message.topic
-                , message_id => Message#message.id
-                , qos => Message#message.qos
-                , from_id => Message#message.from
-                , message => Message#message.payload
-                , flags => Message#message.flags
-                , headers => Message#message.headers
-                , time => Message#message.timestamp
+    ChatOutput = #{topic => element(7, Message)
+                , message_id => element(2, Message)
+                , qos => element(3, Message)
+                , from_id => element(4, Message)
+                , message => element(8, Message)
+                , flags => element(5, Message)
+                , headers => element(6, Message)
+                , time => element(9, Message)
                 
                 },
     P = put_chat(ChatOutput),
