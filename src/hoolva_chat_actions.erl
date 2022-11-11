@@ -73,7 +73,7 @@ store(Message) ->
                 
                 },
     P = put_chat(ChatOutput),
-    io:format("~ndata stored in DB"),
+    io:format("~ndata stored in DB --- ~p~n",[P]),
     {ok,P}.
         
         
