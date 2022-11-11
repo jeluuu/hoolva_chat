@@ -32,5 +32,5 @@ $(CUTTLEFISH_SCRIPT):
 	@${REBAR} get-deps
 	@if [ ! -f cuttlefish ]; then make -C _build/default/lib/cuttlefish; fi
 
-app.config: $(CUTTLEFISH_SCRIPT) etc/emqx_hoolva_chat.config
+app.config: $(CUTTLEFISH_SCRIPT) etc/hoolva_chat.config
 	$(verbose) $(CUTTLEFISH_SCRIPT) -l info -e etc/ -c etc/hoolva_chat.conf -i priv/hoolva_chat.schema
