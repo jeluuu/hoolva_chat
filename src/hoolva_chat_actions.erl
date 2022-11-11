@@ -38,7 +38,8 @@ init([]) ->
         hoolva_chat => #{columns => #{topic => #{type => binary
                                         , limit => 50
                                         , null => false}
-                                , message_id => #{type => binary}
+                                , message_id => #{type => binary
+                                                , key => true}
                                 , qos => #{type => integer}
                                 , from_id => #{type => binary}
                                 , message => #{type => binary}

@@ -204,20 +204,8 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->  
 on_message_publish(Message, _Env) ->
     io:format("-------------home ---~nPublish = ~p~n", [Message]),
     % {FromClientId, FromUsername} = parse_form(Message),
-    % Data = #{
-    %     topic => Message#message.topic
-    % ,   
-    % }
     hoolva_chat_actions:store(Message),
-    
-    
-    %         {_,Uuid} = hoolva_chat_actions:store(Message),
-    %         io:format("~n ----- ~p -------~n",[Uuid]),
-    %         % hoolva_chat_actions:send(Uuid),
-            {ok, Message}.
-        % end.
-        % 
-        % 
+    {ok, Message}.
 
 on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->                           %% This API is called after a message has been pushed to mqtt clients
     io:format("Message delivered to client : ~p~n message : ~p~n",[ClientId, Message]),                
@@ -228,8 +216,10 @@ on_message_acked(_ClientInfo, #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
     io:format("~n------------ checking ACK ---------~n"),
     ok;
 on_message_acked(#{clientid := ClientId}, Message, _Env) ->                                              %% delivered and reveived successfully at client  -- This API is called after a message has been acknowledged.
-% on_message_acked(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
-    io:format("~n ======= Message acked by client(~s):~n~p~n", [ClientId, Message]).                       
+    io:format("~n ======= Message acked by client(~s):~n~p~n", [ClientId, Message]), 
+    Message_id = element(2, Message),
+    Q = hoolva_chat_actions:put_chat(#{message_id => Message_id, status => <<"delivered">>}),
+    io:format("~n UPDATED ~p~n",[Q]).                      
 
 on_message_dropped(#message{topic = <<"$SYS/", _/binary>>}, _By, _Reason, _Env) ->
     ok;
@@ -238,11 +228,11 @@ on_message_dropped(Message, _By = #{node := Node}, Reason, _Env) ->
               [Node, Reason, emqx_message:to_map(Message)]).
 
 
-parse_form(Message) ->
-    {emqx_message:from(Message), maybe(emqx_message:get_header(username, Message))}.
+% parse_form(Message) ->
+%     {emqx_message:from(Message), maybe(emqx_message:get_header(username, Message))}.
 
 
-maybe(undefined) -> null;
-maybe(Str) -> Str.
+% maybe(undefined) -> null;
+% maybe(Str) -> Str.
 
 
