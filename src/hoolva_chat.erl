@@ -166,7 +166,7 @@ on_session_created(#{clientid := ClientId}, SessInfo, _Env) ->
 
 on_session_subscribed(#{clientid := ClientId}, Topic, SubOpts, _Env) ->                             %% This API is called after a subscription has been done.
     io:format("~n ------Session(~s) subscribed ~p with subopts: ~p~n", [ClientId, Topic, SubOpts]),
-    case hc_retained_actions:get_chat(#{topic => Topic, status => <<"undelivered">> }) of
+    case hoolva_chat_actions:get_chat(#{topic => Topic, status => <<"undelivered">> }) of
         [] ->
             io:format("~nno undelivered messsage found");
         C ->
