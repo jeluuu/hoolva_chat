@@ -67,7 +67,7 @@ store(Message) ->
                 , message_id => element(2, Message)
                 , qos => element(3, Message)
                 , from_id => element(4, Message)
-                , message => element(8, Message)
+                , message => hoolva_chat_utils:encrypt(element(8, Message))
                 , flags => element(5, Message)
                 , headers => element(6, Message)
                 , time => element(9, Message)
@@ -108,21 +108,23 @@ messages(_,[]) ->
   ok;
 messages(Topic,[H|T]) ->
   % Message = element(5,H),
+  Message_id = maps:get(message_id, H),
+  Qos = maps:get(qos, H),
+  From = maps:get(from_id, H),
+
   P = maps:get(message, H),
-  Qos1 = maps:get(qos, H),
-  From1 = maps:get(from_id, H),
-  Uuid = maps:get(uuid, H),
   Message = hoolva_chat_utils:decrypt(P),
 
-  % Data = emqx_message:make(Topic,Message),
-  Data = emqx_message:make(From1,Qos1,Topic,Message),
+  % Flags = maps:get(flags, H),
+  Headers = maps:get(headers, H),
+  Time = maps:get(time, H),
+
+  Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
   emqx:publish(Data),
   io:format("~nmessage send to ~p~n",[Topic]),
   % io:format("~nData - ~p ~n",[Data]),
-  Response = put_chat(#{uuid => Uuid, status => <<"delivered">>}),
+  put_chat(#{message_id => Message_id, status => <<"delivered">>}),
   % io:format("~nput chat -> ~p~n",[Response]),
   messages(Topic,T).
-
-
 
 
