@@ -36,12 +36,17 @@ delete_chat(User) when is_map(User) ->
 init([]) ->
     TableDefs = #{
         hoolva_chat => #{columns => #{topic => #{type => binary
-                                        , limit => 30
+                                        , limit => 50
                                         , null => false}
+                                , message_id => #{type => binary}
+                                , qos => #{type => integer}
                                 , from_id => #{type => binary}
                                 , message => #{type => binary}
+
+                                , flags => #{type => maps}
+                                , headers => #{type => maps}
+
                                 , time => #{type => integer}
-                                , qos => #{type => integer}
                                 , status => #{type => binary
                                               ,limit => [<<"delivered">>, <<"undelivered">>]
                                               ,default => <<"undelivered">>
@@ -55,37 +60,23 @@ init([]) ->
     {ok, TableDefs}.
 
 store(Message) ->
-    io:format("~nMessage publish EMQX : ~p",[Message]),       %published by emqx payload
-    MsgCheck = element(8,Message),
-    case MsgCheck of
-        <<"Connection Closed abnormally..!">> ->
-            io:format("\nmqtt client closed successfully...!\n");
-        _ ->
-            % io:format("~n ------- checking jsx ----- ~n"),
-            % DecodedMessage= [element(2,hd(jsx:decode(element(8,Message))))],
-            DecodedMessage = jsx:decode(element(8,Message)),
-            % io:format("sent message publish : ~p ~n",[DecodedMessage]),
-            Topic = proplists:get_value(<<"to_id">>,DecodedMessage),
-            io:format("to_id => ~p~n", [Topic]),
-            From = proplists:get_value(<<"from">>,DecodedMessage),
-            Message1 = proplists:get_value(<<"message">>,DecodedMessage),
-            %change
-            Message2 = hoolva_chat_utils:encrypt(Message1),
-            % --
-            Date = proplists:get_value(<<"time">>,DecodedMessage),
-            %emqx_hoolva_chat_utils:self_message(Topic,Message1,DecodedMessage),
-            Qos = proplists:get_value(<<"qos">>, DecodedMessage),
-            ChatOutput = #{topic => Topic
-                        , from_id => From
-                        , message => Message2
-                        , time => Date
-                        , qos => Qos
-                    },
-            P = put_chat(ChatOutput),
-            io:format("~ndata stored in DB"),
-            {ok,P}
+    io:format("~n entered hoolva_chat store function "),       %published by emqx payload
+    
+    ChatOutput = #{topic => Message#message.topic
+                , message_id => Message#message.id
+                , qos => Message#message.qos
+                , from_id => Message#message.from
+                , message => Message#message.payload
+                , flags => Message#message.flags
+                , headers => Message#message.headers
+                , time => Message#message.timestamp
+                
+                },
+    P = put_chat(ChatOutput),
+    io:format("~ndata stored in DB"),
+    {ok,P}.
         
-        end.
+        
 
 % send(Uuid) ->                                                 %sending to message to topic when already subscribed
 %   io:format("~nmessage recived @ send !"),       
