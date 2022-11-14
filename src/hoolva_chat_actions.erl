@@ -94,6 +94,9 @@ group(Message) ->
       % Headers = element(6, Message),
       % Flags = element(5, Message),
       Qos = element(3, Message),
+      io:format("~n------ Binary === ~p~n",[From]),
+      From0 = list_to_binary(binary_to_list(From)),
+      io:format("~n------ Binary to list === ~p~n",[From0]),
       From1 = binary_to_list(From),
       io:format("~n------ Binary to list === ~p~n",[From1]),
       do_group(From1,Topic,Qos,Message1)
