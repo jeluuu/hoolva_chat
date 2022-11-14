@@ -87,6 +87,7 @@ group(Message) ->
     _ ->
       DecodedMessage = jsx:decode(element(8,Message)),
       From = proplists:get_value(<<"from">>, DecodedMessage),
+     
       Topic = proplists:get_value(<<"topic">>,DecodedMessage),
       Message1 = proplists:get_value(<<"message">>,DecodedMessage),
       % Date = proplists:get_value(<<"time">>,DecodedMessage),
@@ -95,18 +96,18 @@ group(Message) ->
       % Flags = element(5, Message),
       Qos = element(3, Message),
       io:format("~n------ Binary === ~p~n",[From]),
-      From0 = list_to_binary(binary_to_list(From)),
-      io:format("~n------ Binary to list === ~p~n",[From0]),
-      From1 = binary_to_list(From),
-      io:format("~n------ Binary to list === ~p~n",[From1]),
+      % From0 = list_to_binary(binary_to_list(From)),
+      % io:format("~n------ Binary to list === ~p~n",[From0]),
+      % From1 = binary_to_list(From),
+      % io:format("~n------ Binary to list === ~p~n",[From1]),
       do_group(From,Topic,Qos,Message1)
     end.
 
 do_group([],_,_,_) ->
   ok;
 do_group([H|T],Topic,Qos,Message1) ->
-  H1 = list_to_binary(binary_to_list(H)),
-  Publish = emqx_message:make(H1, Qos, Topic, Message1),
+  % H1 = list_to_atom(H),
+  Publish = emqx_message:make(H, Qos, Topic, Message1),
   io:format("~n================ Publish ~p~n",[Publish]),
   emqx:publish(Publish),
   do_group(T,Topic,Qos,Message1).
