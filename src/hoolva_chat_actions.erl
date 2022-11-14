@@ -78,7 +78,7 @@ init([]) ->
                                 }
                         ,audit => true
                   },
-        hoolva_group_chat => #{colums => #{group_id => #{type => binary
+        hoolva_group_chat => #{columns => #{group_id => #{type => binary
                                                       ,  null => false
                                                       % ,  key => true
                                                     }
