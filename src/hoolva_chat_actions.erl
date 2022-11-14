@@ -99,13 +99,15 @@ group(Message) ->
       io:format("~n------ Binary to list === ~p~n",[From0]),
       From1 = binary_to_list(From),
       io:format("~n------ Binary to list === ~p~n",[From1]),
-      do_group(From1,Topic,Qos,Message1)
+      do_group(From,Topic,Qos,Message1)
     end.
 
 do_group([],_,_,_) ->
   ok;
 do_group([H|T],Topic,Qos,Message1) ->
-  Publish = emqx_message:make(H, Qos, Topic, Message1),
+  H1 = list_to_binary(binary_to_list(H)),
+  Publish = emqx_message:make(H1, Qos, Topic, Message1),
+  io:format("~n================ Publish ~p~n",[Publish]),
   emqx:publish(Publish),
   do_group(T,Topic,Qos,Message1).
 
