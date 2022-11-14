@@ -13,6 +13,10 @@
   ,get_chat/0
   ,get_chat/1
   ,delete_chat/1
+  ,put_group_chat/1
+  ,get_group_chat/0
+  ,get_group_chat/1
+  ,delete_group_chat/1
 ]).
 
 -export([start_link/0]).
@@ -33,6 +37,23 @@ delete_chat(UserUuid) when is_binary(UserUuid) ->
   delete_chat(#{uuid => UserUuid});
 delete_chat(User) when is_map(User) ->
   tivan_server:remove(?MODULE, hoolva_chat, User).
+
+%% --------- GROUP CHAT -----------
+put_group_chat(Chat) when is_map(Chat) ->
+  tivan_server:put(?MODULE, hoolva_group_chat, Chat).
+
+get_group_chat() ->
+  get_group_chat(#{}).
+
+get_group_chat(Options) when is_map(Options) ->
+  tivan_server:get(?MODULE, hoolva_group_chat, Options).
+
+delete_group_chat(UserUuid) when is_binary(UserUuid) ->
+  delete_group_chat(#{uuid => UserUuid});
+delete_group_chat(User) when is_map(User) ->
+  tivan_server:remove(?MODULE, hoolva_group_chat, User).
+
+%% ----------- TABLE ----------------
 
 init([]) ->
     TableDefs = #{
@@ -56,8 +77,19 @@ init([]) ->
                                         
                                 }
                         ,audit => true
-                  }
-        % topic => #{colums => #{}}
+                  },
+        hoolva_group_chat => #{colums => #{group_id => #{type => binary
+                                                      ,  null => false
+                                                      % ,  key => true
+                                                    }
+                                        ,  from_id => #{type => binary}
+                                        ,  message => #{type => binary}
+                                        ,  time => #{type => integer}
+                                    
+
+        }
+        ,audit => true
+      }
     },
     {ok, TableDefs}.
 
@@ -85,10 +117,9 @@ group(Message) ->
     <<"Connection Closed abnormally..!">> ->
         io:format("\nmqtt client closed successfully...!\n");
     _ ->
-      DecodedMessage = jsx:decode(element(8,Message)),
       Clientid = element(4, Message),
+      DecodedMessage = jsx:decode(element(8,Message)),
       From = proplists:get_value(<<"from">>, DecodedMessage),
-     
       Topic = proplists:get_value(<<"topic">>,DecodedMessage),
       Message1 = proplists:get_value(<<"message">>,DecodedMessage),
       % Date = proplists:get_value(<<"time">>,DecodedMessage),
@@ -96,18 +127,19 @@ group(Message) ->
       % Headers = element(6, Message),
       % Flags = element(5, Message),
       Qos = element(3, Message),
+      ChatOutput = #{group_id => Topic
+                , from_id => Clientid
+                , message => hoolva_chat_utils:encrypt(Message1)
+                , time => element(9, Message)
+                },
+      put_group_chat(ChatOutput),
       io:format("~n------ Binary === ~p~n",[From]),
-      % From0 = list_to_binary(binary_to_list(From)),
-      % io:format("~n------ Binary to list === ~p~n",[From0]),
-      % From1 = binary_to_list(From),
-      % io:format("~n------ Binary to list === ~p~n",[From1]),
       do_group(From,Topic,Qos,Message1,Clientid)
     end.
 
 do_group([],_,_,_,_) ->
   ok;
 do_group([H|T],Topic,Qos,Message1,Clientid) ->
-  % H1 = list_to_atom(H),
   Topic1 = binary_to_list(H) ++ "/" ++ binary_to_list(Topic),
   Publish = emqx_message:make(Clientid, Qos, list_to_binary(Topic1), Message1),
   io:format("~n================ Publish ~p~n",[Publish]),
