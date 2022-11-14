@@ -86,6 +86,7 @@ group(Message) ->
         io:format("\nmqtt client closed successfully...!\n");
     _ ->
       DecodedMessage = jsx:decode(element(8,Message)),
+      Clientid = element(4, Message),
       From = proplists:get_value(<<"from">>, DecodedMessage),
      
       Topic = proplists:get_value(<<"topic">>,DecodedMessage),
@@ -100,17 +101,18 @@ group(Message) ->
       % io:format("~n------ Binary to list === ~p~n",[From0]),
       % From1 = binary_to_list(From),
       % io:format("~n------ Binary to list === ~p~n",[From1]),
-      do_group(From,Topic,Qos,Message1)
+      do_group(From,Topic,Qos,Message1,Clientid)
     end.
 
-do_group([],_,_,_) ->
+do_group([],_,_,_,_) ->
   ok;
-do_group([H|T],Topic,Qos,Message1) ->
+do_group([H|T],Topic,Qos,Message1,Clientid) ->
   % H1 = list_to_atom(H),
-  Publish = emqx_message:make(H, Qos, Topic, Message1),
+  Topic1 = binary_to_list(H) ++ "/" ++ binary_to_list(Topic),
+  Publish = emqx_message:make(Clientid, Qos, Topic1, Message1),
   io:format("~n================ Publish ~p~n",[Publish]),
   emqx:publish(Publish),
-  do_group(T,Topic,Qos,Message1).
+  do_group(T,Topic,Qos,Message1,Clientid).
 
 
 
