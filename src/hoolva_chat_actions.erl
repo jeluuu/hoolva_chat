@@ -109,7 +109,7 @@ do_group([],_,_,_,_) ->
 do_group([H|T],Topic,Qos,Message1,Clientid) ->
   % H1 = list_to_atom(H),
   Topic1 = binary_to_list(H) ++ "/" ++ binary_to_list(Topic),
-  Publish = emqx_message:make(Clientid, Qos, Topic1, Message1),
+  Publish = emqx_message:make(Clientid, Qos, list_to_binary(Topic1), Message1),
   io:format("~n================ Publish ~p~n",[Publish]),
   emqx:publish(Publish),
   do_group(T,Topic,Qos,Message1,Clientid).
