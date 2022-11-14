@@ -91,19 +91,20 @@ group(Message) ->
       Message1 = proplists:get_value(<<"message">>,DecodedMessage),
       % Date = proplists:get_value(<<"time">>,DecodedMessage),
       % Time = element(9,Message),
-      Headers = element(6, Message),
-      Flags = element(5, Message),
+      % Headers = element(6, Message),
+      % Flags = element(5, Message),
       Qos = element(3, Message),
       From1 = binary_to_list(From),
-      do_group(From1,Topic,Qos,Message1,Flags,Headers)
+      io:format("~n------ Binary to list === ~p~n",[From1]),
+      do_group(From1,Topic,Qos,Message1)
     end.
 
-do_group([],_,_,_,_,_) ->
+do_group([],_,_,_) ->
   ok;
-do_group([H|T],Topic,Qos,Message1,Flags,Headers) ->
-  Publish = emqx_message:make(H, Qos, Topic, Message1, Flags, Headers),
+do_group([H|T],Topic,Qos,Message1) ->
+  Publish = emqx_message:make(H, Qos, Topic, Message1),
   emqx:publish(Publish),
-  do_group(T,Topic,Qos,Message1,Flags,Headers).
+  do_group(T,Topic,Qos,Message1).
 
 
 
