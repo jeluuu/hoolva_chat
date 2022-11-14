@@ -101,7 +101,8 @@ group(Message) ->
 do_group([],_,_,_,_,_) ->
   ok;
 do_group([H|T],Topic,Qos,Message1,Flags,Headers) ->
-  emqx_message:make(H, Qos, Topic, Message1, Flags, Headers),
+  Publish = emqx_message:make(H, Qos, Topic, Message1, Flags, Headers),
+  emqx:publish(Publish),
   do_group(T,Topic,Qos,Message1,Flags,Headers).
 
 
