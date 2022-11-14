@@ -94,7 +94,7 @@ group(Message) ->
       Headers = element(6, Message),
       Flags = element(5, Message),
       Qos = element(3, Message),
-      From1 = binary_to_atom(From),
+      From1 = binary_to_list(From),
       do_group(From1,Topic,Qos,Message1,Flags,Headers)
     end.
 
