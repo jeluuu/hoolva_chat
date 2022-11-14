@@ -6,6 +6,7 @@
     init/1
   % , publish/1
   , store/1
+  , group/1
   % , send/1
   , retained/2
   ,put_chat/1
@@ -77,7 +78,33 @@ store(Message) ->
     io:format("~ndata stored in DB --- ~p~n",[P]),
     {ok,P}.
         
-        
+group(Message) ->
+  io:format("~nentering group message~n"),
+  MsgCheck = element(8,Message),
+  case MsgCheck of
+    <<"Connection Closed abnormally..!">> ->
+        io:format("\nmqtt client closed successfully...!\n");
+    _ ->
+      DecodedMessage = jsx:decode(element(8,Message)),
+      From = proplists:get_value(<<"from">>, DecodedMessage),
+      Topic = proplists:get_value(<<"topic">>,DecodedMessage),
+      Message1 = proplists:get_value(<<"message">>,DecodedMessage),
+      % Date = proplists:get_value(<<"time">>,DecodedMessage),
+      % Time = element(9,Message),
+      Headers = element(6, Message),
+      Flags = element(5, Message),
+      Qos = element(3, Message),
+      do_group(From,Topic,Qos,Message1,Flags,Headers)
+    end.
+
+do_group([],_,_,_,_,_) ->
+  ok;
+do_group([H|T],Topic,Qos,Message1,Flags,Headers) ->
+  emqx_message:make(H, Qos, Topic, Message1, Flags, Headers),
+  do_group(T,Topic,Qos,Message1,Flags,Headers).
+
+
+
 
 % send(Uuid) ->                                                 %sending to message to topic when already subscribed
 %   io:format("~nmessage recived @ send !"),       

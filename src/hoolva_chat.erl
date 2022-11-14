@@ -208,6 +208,10 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->  
 %     io:format("-------------home ---~nPublish = ~p~n", [Message]),
 %     hoolva_chat_actions:store(Message),
 %     {ok, Message}.
+on_message_publish(Message = #message{topic = <<"share/group">>}, _Env) ->
+    io:format("~n enter group chat session ~n"),
+    hoolva_chat_actions:group(Message),
+    {ok, Message};
 
 on_message_publish(Message, _Env) ->
     io:format("-------------home ---~nPublish = ~p~n", [Message]),
