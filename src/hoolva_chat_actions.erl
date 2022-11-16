@@ -195,6 +195,7 @@ messages(Topic,[H|T]) ->
   {ok, C1} = emqtt:start_link([{clientid, From}]),
   {ok, _} = emqtt:connect(C1),
   emqtt:publish(C1,Topic,Message,Qos),
+  emqtt:disconnect(C1),
 
   io:format("~nmessage send to ~p~n",[Topic]),
   % io:format("~nData - ~p ~n",[Data]),
