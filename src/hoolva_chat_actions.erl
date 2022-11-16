@@ -192,7 +192,7 @@ messages(Topic,[H|T]) ->
   % Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
   % emqx:publish(Data),
   
-  {ok, C1} = emqtt:start_link([From, {proto_ver, v5}]),
+  {ok, C1} = emqtt:start_link([{client_id, From}]),
   {ok, _} = emqtt:connect(C1),
   emqtt:publish(C1,Topic,Message,Qos),
 
