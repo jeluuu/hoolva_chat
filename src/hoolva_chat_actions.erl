@@ -189,8 +189,9 @@ messages(Topic,[H|T]) ->
   Headers = maps:get(headers, H),
   Time = maps:get(time, H),
 
-  Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
-  emqx:publish(Data),
+  % Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
+  % emqx:publish(Data),
+  emqtt:publish(From,Topic,Message,Qos),
   io:format("~nmessage send to ~p~n",[Topic]),
   % io:format("~nData - ~p ~n",[Data]),
   put_chat(#{message_id => Message_id, status => <<"delivered">>}),
