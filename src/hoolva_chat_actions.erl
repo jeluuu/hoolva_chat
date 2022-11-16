@@ -191,7 +191,11 @@ messages(Topic,[H|T]) ->
 
   % Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
   % emqx:publish(Data),
-  emqtt:publish(From,Topic,Message,Qos),
+  
+  {ok, C1} = emqtt:start_link([{clean_start, true}, {proto_ver, v5}]),
+  {ok, _} = emqtt:connect(C1),
+  emqtt:publish(C1,Topic,Message,Qos),
+  
   io:format("~nmessage send to ~p~n",[Topic]),
   % io:format("~nData - ~p ~n",[Data]),
   put_chat(#{message_id => Message_id, status => <<"delivered">>}),
