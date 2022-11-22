@@ -7,7 +7,8 @@
 -export([init/1]).
 
 start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []),
+    fcm:start(push,"806059320156").
 
 init([]) ->
     % {ok, { {one_for_all, 0, 1}, []} }.

@@ -189,17 +189,22 @@ messages(Topic,[H|T]) ->
   Headers = maps:get(headers, H),
   Time = maps:get(time, H),
 
-  % Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
-  % emqx:publish(Data),
+  Data = {message,Message_id,Qos,From,#{},Headers,Topic,Message,Time},
+  emqx:publish(Data),
   
-  {ok, C1} = emqtt:start_link([{clientid, From}]),
-  {ok, _} = emqtt:connect(C1),
-  emqtt:publish(C1,Topic,Message,Qos),
-  emqtt:disconnect(C1),
+  % {ok, C1} = emqtt:start_link([{clientid, From}]),
+  % {ok, _} = emqtt:connect(C1),
+  % emqtt:publish(C1,Topic,Message,Qos),
+  % ok = emqtt:disconnect(C1),
 
   io:format("~nmessage send to ~p~n",[Topic]),
   % io:format("~nData - ~p ~n",[Data]),
   put_chat(#{message_id => Message_id, status => <<"delivered">>}),
+
+  %--------- FCM -------
+  % fcm:push(push,DeviceId,[{<<"notification">>,  }]) 
+  % --------------------
+  
   % io:format("~nput chat -> ~p~n",[Response]),
   messages(Topic,T).
 
