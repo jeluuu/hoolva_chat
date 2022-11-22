@@ -9,6 +9,7 @@
   , group/1
   % , send/1
   , retained/2
+  , client_details/2
   ,put_chat/1
   ,get_chat/0
   ,get_chat/1
@@ -17,6 +18,11 @@
   ,get_group_chat/0
   ,get_group_chat/1
   ,delete_group_chat/1
+  %-- client_details ----
+  ,put_client_details/1
+  ,get_client_details/0
+  ,get_client_details/1
+  ,delete_client_details/1
 ]).
 
 -export([start_link/0]).
@@ -53,6 +59,21 @@ delete_group_chat(UserUuid) when is_binary(UserUuid) ->
 delete_group_chat(User) when is_map(User) ->
   tivan_server:remove(?MODULE, hoolva_group_chat, User).
 
+%% --------- CLIENT DETAILS -----------
+put_client_details(Chat) when is_map(Chat) ->
+  tivan_server:put(?MODULE, client_details, Chat).
+
+get_client_details() ->
+  get_group_chat(#{}).
+
+get_client_details(Options) when is_map(Options) ->
+  tivan_server:get(?MODULE, client_details, Options).
+
+delete_client_details(UserUuid) when is_binary(UserUuid) ->
+  delete_client_details(#{uuid => UserUuid});
+delete_client_details(User) when is_map(User) ->
+  tivan_server:remove(?MODULE, client_details, User).
+
 %% ----------- TABLE ----------------
 
 init([]) ->
@@ -78,7 +99,7 @@ init([]) ->
                                 }
                         ,audit => true
                   },
-        hoolva_group_chat => #{columns => #{group_id => #{type => binary
+      hoolva_group_chat => #{columns => #{group_id => #{type => binary
                                                       ,  null => false
                                                       % ,  key => true
                                                     }
@@ -87,6 +108,14 @@ init([]) ->
                                         ,  time => #{type => integer}
                                     
 
+        }
+        ,audit => true
+      },
+      client_details => #{columns => #{client_id => #{type => binary
+                                                    ,null => false
+                                                    ,key => true
+                                                    }
+                                      , device_id => #{type => binary}
         }
         ,audit => true
       }
@@ -147,6 +176,11 @@ do_group([H|T],Topic,Qos,Message1,Clientid) ->
   do_group(T,Topic,Qos,Message1,Clientid).
 
 
+client_details(ClientId,User_Properties) ->
+  Device_id = maps:get(<<"deviceid">>,User_Properties),
+  Details = #{clientid => ClientId
+            , device_id => Device_id},
+  put_client_details(Details).
 
 
 % send(Uuid) ->                                                 %sending to message to topic when already subscribed

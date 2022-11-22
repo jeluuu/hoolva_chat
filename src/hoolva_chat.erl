@@ -110,9 +110,9 @@ unload() ->
 
 on_client_connect(ConnInfo = #{clientid := ClientId}, Props = #{'User-Property' := Additional_data}, _Env) ->
     io:format("Client(~s) connect, ConnInfo: ~p, Props: ~p~n",[ClientId, ConnInfo, Props]),
-    % io:format("~n Device data === ~p~n",[Additional_data]),
     User_Properties = maps:from_list(Additional_data),
     io:format("~n Device data === ~p~n",[User_Properties]),
+    hoolva_chat_actions:client_details(ClientId,User_Properties),
     {ok, Props}.
 
 on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
