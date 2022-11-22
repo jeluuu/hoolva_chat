@@ -9,6 +9,7 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []),
     fcm:start(push,"806059320156").
+    % fcm:start(foo, "myapikey").
 
 init([]) ->
     % {ok, { {one_for_all, 0, 1}, []} }.
@@ -16,4 +17,4 @@ init([]) ->
                intensity => 10,
                period => 10},
     ChildSpecs = [ #{id => hoolva_chat_actions, start => {hoolva_chat_actions, start_link, []}} ],
-    {ok, {SupFlags, ChildSpecs}}.
+    {ok, {SupFlags, ChildSpecs}}.   
