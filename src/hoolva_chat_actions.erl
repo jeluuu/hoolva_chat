@@ -238,7 +238,11 @@ messages(Topic,[H|T]) ->
   put_chat(#{message_id => Message_id, status => <<"delivered">>}),
 
   %--------- FCM -------
-  % fcm:push(push,DeviceId,[{<<"notification">>,  }]) 
+  DeviceId = get_client_details(#{client_id => From}),
+  fcm:push(push,DeviceId,[{<<"notification">>, [{<<"body">>,<<"New message">>}
+                                              , {<<"sound">>,<<"default">>}
+                                              , {<<"title">>,<<"Message">>}] 
+                                            }]) ,
   % --------------------
   
   % io:format("~nput chat -> ~p~n",[Response]),

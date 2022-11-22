@@ -9,7 +9,6 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []),
     fcm:start(push,"806059320156").
-    % fcm:start(foo, "myapikey").
 
 init([]) ->
     % {ok, { {one_for_all, 0, 1}, []} }.
