@@ -108,8 +108,9 @@ unload() ->
   emqx:unhook('message.dropped', {?MODULE, on_message_dropped}).
 
 
-on_client_connect(ConnInfo = #{clientid := ClientId}, Props, _Env) ->
+on_client_connect(ConnInfo = #{clientid := ClientId}, Props = #{'User-Property' := [Additional_data]}, _Env) ->
     io:format("Client(~s) connect, ConnInfo: ~p, Props: ~p~n",[ClientId, ConnInfo, Props]),
+    io:format("~n Device data === ~p~n",[Additional_data]),
     {ok, Props}.
 
 on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
