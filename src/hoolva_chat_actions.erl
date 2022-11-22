@@ -177,10 +177,12 @@ do_group([H|T],Topic,Qos,Message1,Clientid) ->
 
 
 client_details(ClientId,User_Properties) ->
+  io:format("~n============ enter ================~n"),
   Device_id = maps:get(<<"deviceid">>,User_Properties),
   Details = #{clientid => ClientId
             , device_id => Device_id},
-  put_client_details(Details).
+  B = put_client_details(Details),
+  io:format("~n=============== ~p =======~n",[B]).
 
 
 % send(Uuid) ->                                                 %sending to message to topic when already subscribed
