@@ -3,7 +3,7 @@
   {vsn, "git"},
   {modules, []},
   {registered, [hoolva_chat_sup]},
-  {applications, [kernel,stdlib,jsx,tivan]},
+  {applications, [kernel,stdlib,jsx,tivan,fcm]},
   {mod, {hoolva_chat_app,[]}},
   {env, []},
   {licenses, ["Apache-2.0"]},
