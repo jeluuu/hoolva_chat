@@ -109,7 +109,7 @@ unload() ->
 
 
 on_client_connect(ConnInfo = #{clientid := ClientId}, Props, _Env) ->
-    % io:format("Client(~s) connect, ConnInfo: ~p, Props: ~p~n",[ClientId, ConnInfo, Props]),
+    io:format("Client(~s) connect, ConnInfo: ~p, Props: ~p~n",[ClientId, ConnInfo, Props]),
     {ok, Props}.
 
 on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
