@@ -2,6 +2,9 @@
 REBAR_GIT_CLONE_OPTIONS += --depth 1
 export REBAR_GIT_CLONE_OPTIONS
 
+include erlang.mk
+app:: rebar.config
+
 REBAR = rebar3
 all: compile
 
