@@ -60,19 +60,19 @@ delete_group_chat(User) when is_map(User) ->
   tivan_server:remove(?MODULE, hoolva_group_chat, User).
 
 %% --------- CLIENT DETAILS -----------
-put_client_details(Chat) when is_map(Chat) ->
-  tivan_server:put(?MODULE, client_details, Chat).
+put_client_details(ClientId) when is_map(ClientId) ->
+  tivan_server:put(?MODULE, client_details, ClientId).
 
 get_client_details() ->
-  get_group_chat(#{}).
+  get_client_details(#{}).
 
 get_client_details(Options) when is_map(Options) ->
   tivan_server:get(?MODULE, client_details, Options).
 
-delete_client_details(UserUuid) when is_binary(UserUuid) ->
-  delete_client_details(#{uuid => UserUuid});
-delete_client_details(User) when is_map(User) ->
-  tivan_server:remove(?MODULE, client_details, User).
+delete_client_details(ClientId) when is_binary(ClientId) ->
+  delete_client_details(#{client_id => ClientId});
+delete_client_details(ClientId) when is_map(ClientId) ->
+  tivan_server:remove(?MODULE, client_details, ClientId).
 
 %% ----------- TABLE ----------------
 
