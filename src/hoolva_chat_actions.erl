@@ -179,7 +179,7 @@ do_group([H|T],Topic,Qos,Message1,Clientid) ->
 client_details(ClientId,User_Properties) ->
   io:format("~n============ enter ================~n"),
   Device_id = maps:get(<<"deviceid">>,User_Properties),
-  Details = #{clientid => ClientId
+  Details = #{client_id => ClientId
             , device_id => Device_id},
   B = put_client_details(Details),
   io:format("~n=============== ~p =======~n",[B]).
